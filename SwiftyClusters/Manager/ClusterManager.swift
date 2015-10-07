@@ -42,27 +42,28 @@ protocol ClusterManagerDelegate {
 }
 
 // MARK: ClusterManager class
-class ClusterManager: NSObject {
+public class ClusterManager: NSObject {
     
     var delegate: ClusterManagerDelegate? = nil
     
     private var tree: Tree? = Tree()
     private var lock: NSRecursiveLock
     
-    init(annotations: [SingleAnnotation]) {
+    public init(annotations: [MapAnnotation]) {
         lock = NSRecursiveLock()
         
         super.init()
         
+        addAnnotations(annotations)
         
     }
     
-    func setAnnotations(annotations: [SingleAnnotation]) {
+    func setAnnotations(annotations: [MapAnnotation]) {
         tree = nil
         
     }
     
-    func addAnnotations(annotations: [SingleAnnotation]) {
+    func addAnnotations(annotations: [MapAnnotation]) {
         lock.lock()
         
         for annotation in annotations {
@@ -72,7 +73,7 @@ class ClusterManager: NSObject {
         lock.unlock()
     }
     
-    func removeAnnotations(annotations: [SingleAnnotation]) {
+    func removeAnnotations(annotations: [MapAnnotation]) {
         if tree == nil {
             return
         }
@@ -86,11 +87,11 @@ class ClusterManager: NSObject {
         lock.unlock()
     }
     
-    func clusteredAnnotationsWithinMapRect(rect: MKMapRect, zoomScale: Double) -> [AnyObject]{
+    public func clusteredAnnotationsWithinMapRect(rect: MKMapRect, zoomScale: Double) -> [AnyObject]{
         return clusteredAnnotationsWithinMapRect(rect, zoomScale: zoomScale, filter: nil)
     }
     
-    func clusteredAnnotationsWithinMapRect(rect: MKMapRect, zoomScale: Double, filter: ((annotation: SingleAnnotation) -> Bool)?) -> [AnyObject] {
+    func clusteredAnnotationsWithinMapRect(rect: MKMapRect, zoomScale: Double, filter: ((annotation: MapAnnotation) -> Bool)?) -> [AnyObject] {
         var cellSize = cellSizeForZoomScale(zoomScale)
         
         if let sizeMultiplier = delegate?.cellSizeFactorForManager(self){
@@ -120,7 +121,7 @@ class ClusterManager: NSObject {
                 
                 tree?.enumerateAnnotationsInBox(mapBox, block: { annotation in
 
-                    if filter!(annotation: annotation) == true {
+                    if filter == nil || filter!(annotation: annotation) == true {
                         totalLatitude += annotation.coordinate.latitude
                         totalLongitude += annotation.coordinate.longitude
                         annotations.append(annotation)
@@ -134,8 +135,8 @@ class ClusterManager: NSObject {
                 
                 if count > 1 {
                     let coordinate = CLLocationCoordinate2DMake(totalLatitude/Double(count), totalLongitude/Double(count))
-                    let cluster = ClusterAnnotation(title: "", subtitle: "", coordinate: coordinate)
-                    cluster.annotations = annotations as! [SingleAnnotation]
+                    let cluster = ClusterAnnotation(coordinate: coordinate)
+                    cluster.annotations = annotations as! [MapAnnotation]
                     clusteredAnnotations.append(cluster)
                 }
             }
@@ -146,8 +147,8 @@ class ClusterManager: NSObject {
         return clusteredAnnotations
     }
     
-    func allAnnotations() -> [SingleAnnotation] {
-        var annotations = [SingleAnnotation]()
+    func allAnnotations() -> [MapAnnotation] {
+        var annotations = [MapAnnotation]()
         
         lock.lock()
         
@@ -160,10 +161,10 @@ class ClusterManager: NSObject {
         return annotations
     }
     
-    func displayAnnotations(annotations: [SingleAnnotation], mapView: MKMapView) {
-        let before = Set<SingleAnnotation>(annotations)
+    public func displayAnnotations(annotations: [MapAnnotation], allAnnotations: [MapAnnotation], mapView: MKMapView) {
+        let before = Set<MapAnnotation>(allAnnotations)
         
-        let after = Set<SingleAnnotation>(annotations)
+        let after = Set<MapAnnotation>(annotations)
         
         let toKeep = before.intersect(after)
         
@@ -172,13 +173,13 @@ class ClusterManager: NSObject {
         let toRemove = before.subtract(after)
         
         dispatch_async(dispatch_get_main_queue(), {
-            var toAddArray = [SingleAnnotation]()
+            var toAddArray = [MapAnnotation]()
             for annotation in toAdd {
                 toAddArray.append(annotation)
             }
             mapView.addAnnotations(toAddArray)
             
-            var toRemoveArray = [SingleAnnotation]()
+            var toRemoveArray = [MapAnnotation]()
             for annotation in toRemove {
                 toRemoveArray.append(annotation)
             }

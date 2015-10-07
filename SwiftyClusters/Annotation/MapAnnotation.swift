@@ -8,18 +8,18 @@
 
 import MapKit
 
-class SingleAnnotation: NSObject, MKAnnotation {
-    var title :String? = ""
-    var subtitle :String? = ""
-    let coordinate:CLLocationCoordinate2D
+public class MapAnnotation: NSObject, MKAnnotation {
+    public var title :String? = ""
+    public var subtitle :String? = ""
+    public var coordinate:CLLocationCoordinate2D
     
-    override var hashValue: Int {
+    override public var hashValue: Int {
         get {
             return self.calculateHashValue()
         }
     }
     
-    init(coordinate: CLLocationCoordinate2D) {
+    public init(coordinate: CLLocationCoordinate2D) {
         self.coordinate = coordinate
         super.init()
     }
@@ -33,12 +33,12 @@ class SingleAnnotation: NSObject, MKAnnotation {
     }
 }
 
-func ==(lhs: SingleAnnotation, rhs: SingleAnnotation) -> Bool {
+func ==(lhs: MapAnnotation, rhs: MapAnnotation) -> Bool {
     return lhs.coordinate.isEqual(rhs.coordinate)
 }
 
-extension CLLocationCoordinate2D {
-    func isEqual(rhs:CLLocationCoordinate2D) -> Bool {
+public extension CLLocationCoordinate2D {
+    public func isEqual(rhs:CLLocationCoordinate2D) -> Bool {
         return self.latitude == rhs.latitude && self.longitude == rhs.longitude
     }
 }

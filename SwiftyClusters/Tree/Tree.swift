@@ -17,17 +17,17 @@ class Tree: NSObject {
         super.init()
     }
     
-    func insertAnnotaion(annotation: SingleAnnotation) -> Bool {
+    func insertAnnotaion(annotation: MapAnnotation) -> Bool {
         return insertAnnotationToNode(annotation, node: rootNode)
     }
     
-    private func insertAnnotationToNode(annotation: SingleAnnotation, node: TreeNode) -> Bool {
+    private func insertAnnotationToNode(annotation: MapAnnotation, node: TreeNode) -> Bool {
         if !(BoundingBox.BoundingBoxContainsCoordinate(node.boundingBox!, coordinate: annotation.coordinate)) {
             return false
         }
         
         if node.count < TreeNode.nodeCapacity {
-            node.annotations[node.count++] = annotation
+            node.annotations.append(annotation)
             return true
         }
         
@@ -50,19 +50,14 @@ class Tree: NSObject {
         return false
     }
     
-    func removeAnnotation(annotation: SingleAnnotation) -> Bool {
+    func removeAnnotation(annotation: MapAnnotation) -> Bool {
         return removeAnnotationFromNode(annotation, node: rootNode)
     }
     
-    private func removeAnnotationFromNode(annotation: SingleAnnotation, node: TreeNode) -> Bool {
+    private func removeAnnotationFromNode(annotation: MapAnnotation, node: TreeNode) -> Bool {
         if !(BoundingBox.BoundingBoxContainsCoordinate(node.boundingBox!, coordinate: annotation.coordinate)) {
             return false
         }
-        
-        // Define the predicate used for Array.contains(...), Array.indexOf(...)
-//        let annotationPredicate: ((SingleAnnotation) -> Bool) = {
-//            $0.coordinate.latitude == annotation.coordinate.latitude && $0.coordinate.longitude == annotation.coordinate.longitude
-//        }
 
         if node.annotations.contains(annotation) {
             node.annotations.removeAtIndex(node.annotations.indexOf(annotation)!)
@@ -89,16 +84,16 @@ class Tree: NSObject {
         return false
     }
 
-    func enumerateAnnotationsInBox(box: BoundingBox, block: ((annotation: SingleAnnotation) -> Void)) {
+    func enumerateAnnotationsInBox(box: BoundingBox, block: ((annotation: MapAnnotation) -> Void)) {
         enumerateAnnotationInBox(box, node: rootNode, block: block)
     }
     
-    func enumerateAnnotationsUsingBlock(block: ((annotation: SingleAnnotation) -> Void)) {
+    func enumerateAnnotationsUsingBlock(block: ((annotation: MapAnnotation) -> Void)) {
         enumerateAnnotationInBox(BoundingBox.BoundingBoxForMapRect(MKMapRectWorld), node: rootNode, block: block)
     }
     
-    func enumerateAnnotationInBox(box: BoundingBox, node: TreeNode, block: ((annotation: SingleAnnotation) -> Void)) {
-        if BoundingBox.BoundingBoxIntersectsBoundingBox(node.boundingBox!, box2: box) {
+    func enumerateAnnotationInBox(box: BoundingBox, node: TreeNode, block: ((annotation: MapAnnotation) -> Void)) {
+        if !(BoundingBox.BoundingBoxIntersectsBoundingBox(node.boundingBox!, box2: box)) {
             return
         }
         

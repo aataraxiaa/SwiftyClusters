@@ -59,7 +59,7 @@ class TreeNode: NSObject {
     var count = 0
     var boundingBox: BoundingBox? = nil
     
-    var annotations = [SingleAnnotation]()
+    var annotations = [MapAnnotation]()
     
     var northEast: TreeNode? = nil
     var northWest: TreeNode? = nil
