@@ -27,6 +27,6 @@ Pod::Spec.new do |s|
   s.framework = "MapKit"
   
   # 8
-  s.source_files = 'SwiftyClusters/**/*.{swift}"}'
+  s.source_files = 'SwiftyClusters/**/*.{swift}'
 
 end
