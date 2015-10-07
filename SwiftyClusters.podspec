@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.requires_arc = true
  
   # 2
-  s.version = “0.1”
+  s.version = "0.1"
  
   # 3
   s.license = { :type => "MIT", :file => "LICENSE" }
@@ -27,6 +27,6 @@ Pod::Spec.new do |s|
   s.framework = "MapKit"
   
   # 8
-  s.source_files = 'SwiftyClusters/**/*.{swift}'
+  s.source_files = "SwiftyClusters/**/*.{swift}"
 
 end
